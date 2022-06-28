@@ -9,8 +9,6 @@
             if (Instance == null)
             {
                 Instance = this.gameObject.GetComponent<T>();
-
-                DontDestroyOnLoad(gameObject); // sets this to not be destroyed when reloading scene
             }
             else
             {

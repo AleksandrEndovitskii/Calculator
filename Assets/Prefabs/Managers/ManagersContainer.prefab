@@ -52,6 +52,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4045962603491853943}
     m_Modifications:
+    - target: {fileID: 3476846085419334620, guid: 61d06d636a0dff9469cf859101b9fc4c, type: 3}
+      propertyPath: _userInterfaceCanvasPrefab
+      value: 
+      objectReference: {fileID: 3132913919487736551, guid: bd6af51424b8dbb4a8e3352cef4cbbb0, type: 3}
+    - target: {fileID: 3476846085419334620, guid: 61d06d636a0dff9469cf859101b9fc4c, type: 3}
+      propertyPath: _userInterfaceEventSystemPrefab
+      value: 
+      objectReference: {fileID: 8955065146582557724, guid: 4db0399cd6e4556428ac710b101bb1c5, type: 3}
     - target: {fileID: 4045962603491853943, guid: 61d06d636a0dff9469cf859101b9fc4c, type: 3}
       propertyPath: m_RootOrder
       value: 0
