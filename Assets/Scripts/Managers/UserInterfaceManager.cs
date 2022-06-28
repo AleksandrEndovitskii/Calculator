@@ -1,19 +1,19 @@
-using UnityEngine;
-
 namespace Managers
 {
-    public class UserInterfaceManager : MonoBehaviour
+    public class UserInterfaceManager : BaseManager<UserInterfaceManager>
     {
-        // Start is called before the first frame update
-        void Start()
+        public override void Initialize()
         {
-        
+        }
+        public override void UnInitialize()
+        {
         }
 
-        // Update is called once per frame
-        void Update()
+        public override void Subscribe()
         {
-        
+        }
+        public override void UnSubscribe()
+        {
         }
     }
 }
