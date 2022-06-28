@@ -16,6 +16,8 @@ namespace Managers
         {
             _userInterfaceCanvasInstance = Instantiate(_userInterfaceCanvasPrefab);
             _userInterfaceEventSystemInstance = Instantiate(_userInterfaceEventSystemPrefab);
+
+            IsInitialized = true;
         }
         public override void UnInitialize()
         {
