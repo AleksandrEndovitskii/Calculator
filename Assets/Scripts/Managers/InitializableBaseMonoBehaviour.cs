@@ -20,8 +20,11 @@ namespace Managers
                     return;
                 }
 
-                Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
-                          $"\n{_isInitialized}->{value}");
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{_isInitialized}->{value}");
+                }
                 _isInitialized = value;
 
                 IsInitializedChanged.Invoke(_isInitialized);
