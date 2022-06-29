@@ -12,6 +12,14 @@ namespace Managers
         private EventSystem _userInterfaceEventSystemPrefab;
         private EventSystem _userInterfaceEventSystemInstance;
 
+        public Canvas UserInterfaceCanvasInstance
+        {
+            get
+            {
+                return _userInterfaceCanvasInstance;
+            }
+        }
+
         public override void Initialize()
         {
             _userInterfaceCanvasInstance = Instantiate(_userInterfaceCanvasPrefab);
