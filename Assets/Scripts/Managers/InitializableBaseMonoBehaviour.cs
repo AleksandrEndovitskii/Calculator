@@ -1,5 +1,4 @@
 ﻿using System;
-using Components;
 using Components.BaseComponents;
 using Helpers;
 using UnityEngine;
@@ -9,7 +8,6 @@ namespace Managers
     public abstract class InitializableBaseMonoBehaviour: BaseMonoBehaviour
     {
         public event Action<bool> IsInitializedChanged = delegate { };
-
         public bool IsInitialized
         {
             get => _isInitialized;
@@ -30,7 +28,6 @@ namespace Managers
                 IsInitializedChanged.Invoke(_isInitialized);
             }
         }
-
         private bool _isInitialized;
     }
 }
