@@ -1,4 +1,5 @@
 using System;
+using Extensions;
 using Helpers;
 using TMPro;
 using UnityEngine;
@@ -7,11 +8,33 @@ namespace Managers
 {
     public class InputFieldManager : BaseManager<InputFieldManager>
     {
+        public event Action<string> InputFieldValueChanged = delegate { };
+        public string InputFieldValue
+        {
+            get => _inputField?.text;
+            private set
+            {
+                if (_inputField?.text == value)
+                {
+                    return;
+                }
+
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{_inputField?.text}->{value}");
+                }
+                _inputField.text = value;
+
+                InputFieldValueChanged.Invoke(_inputField?.text);
+            }
+        }
+
         public event Action<bool> IsInputFieldEmptyChanged = delegate { };
         public bool IsInputFieldEmpty
         {
             get => _isInputFieldEmpty;
-            internal set
+            private set
             {
                 if (_isInputFieldEmpty == value)
                 {
@@ -57,9 +80,20 @@ namespace Managers
 
         public override void Subscribe()
         {
+            this.InvokeActionAfterAllConditionsAreMet(() =>
+                {
+                    InputManager.Instance.InputValueChanged += InputManagerOnInputValueChanged;
+                    InputManagerOnInputValueChanged(InputManager.Instance.InputValue);
+                },
+                () => InputManager.Instance != null &&
+                      InputManager.Instance.IsInitialized);
         }
         public override void UnSubscribe()
         {
+            if (InputManager.Instance != null)
+            {
+                InputManager.Instance.InputValueChanged -= InputManagerOnInputValueChanged;
+            }
         }
 
         public void Register(TMP_InputField inputField)
@@ -86,7 +120,12 @@ namespace Managers
                           $"\n{nameof(value)}->{value}");
             }
 
-            IsInputFieldEmpty = string.IsNullOrEmpty(value);
+            InputFieldValue = value;
+            IsInputFieldEmpty = string.IsNullOrEmpty(InputFieldValue);
+        }
+        private void InputManagerOnInputValueChanged(string value)
+        {
+            InputFieldValue = value;
         }
     }
 }
