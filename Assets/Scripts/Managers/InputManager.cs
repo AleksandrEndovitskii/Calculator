@@ -10,7 +10,7 @@ namespace Managers
         public string InputValue
         {
             get => _inputValue;
-            private set
+            set
             {
                 if (_inputValue == value)
                 {
