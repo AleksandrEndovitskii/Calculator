@@ -1,9 +1,9 @@
 using Components.BaseComponents;
 using Managers;
 
-namespace Components.InputComponents
+namespace Components.CalculationComponents
 {
-    public class ClearButtonComponent : BaseButtonComponent
+    public class CalculationManagerClearButtonComponent : BaseButtonComponent
     {
         protected override void ButtonOnClick()
         {
