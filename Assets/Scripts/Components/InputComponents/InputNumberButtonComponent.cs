@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace Components.InputComponents
 {
-    public class InputButtonComponent : BaseButtonComponent
+    public class InputNumberButtonComponent : BaseButtonComponent
     {
         [SerializeField]
-        private string _value;
+        private int _value;
 
         protected override void ButtonOnClick()
         {

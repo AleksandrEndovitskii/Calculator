@@ -14,6 +14,10 @@ namespace Managers
             get => _inputField?.text;
             private set
             {
+                if (_inputField == null)
+                {
+                    return;
+                }
                 if (_inputField?.text == value)
                 {
                     return;
@@ -123,9 +127,9 @@ namespace Managers
             InputFieldValue = value;
             IsInputFieldEmpty = string.IsNullOrEmpty(InputFieldValue);
         }
-        private void InputManagerOnInputValueChanged(string value)
+        private void InputManagerOnInputValueChanged(int? value)
         {
-            InputFieldValue = value;
+            InputFieldValue = value.ToString();
         }
     }
 }

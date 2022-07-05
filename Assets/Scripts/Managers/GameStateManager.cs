@@ -10,7 +10,7 @@ namespace Managers
         public GameState GameState
         {
             get => _gameState;
-            private set
+            set
             {
                 if (_gameState == value)
                 {

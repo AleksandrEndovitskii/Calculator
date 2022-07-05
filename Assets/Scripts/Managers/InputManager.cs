@@ -6,8 +6,10 @@ namespace Managers
 {
     public class InputManager : BaseManager<InputManager>
     {
-        public event Action<string> InputValueChanged = delegate { };
-        public string InputValue
+        public event Action<Operand> OperandInputted = delegate { };
+
+        public event Action<int?> InputValueChanged = delegate { };
+        public int? InputValue
         {
             get => _inputValue;
             set
@@ -27,7 +29,7 @@ namespace Managers
                 InputValueChanged.Invoke(_inputValue);
             }
         }
-        private string _inputValue;
+        private int? _inputValue;
 
         public override void Initialize()
         {
@@ -44,9 +46,20 @@ namespace Managers
         {
         }
 
-        public void HandleInput(string value)
+        public void HandleInput(int value)
         {
-            InputValue += value;
+            var stringValue = string.Empty;
+            if (InputValue.HasValue)
+            {
+                stringValue = InputValue.Value.ToString();
+            }
+            stringValue += value;
+            var intValue = int.Parse(stringValue);
+            InputValue = intValue;
+        }
+        public void HandleInput(Operand operand)
+        {
+            OperandInputted.Invoke(operand);
         }
     }
 }
