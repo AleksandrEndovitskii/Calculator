@@ -30,18 +30,44 @@ namespace Managers
             }
         }
         private int _result;
+        public event Action<string> StringResultChanged = delegate { };
+        public string StringResult
+        {
+            get => _stringResult;
+            set
+            {
+                if (_stringResult == value)
+                {
+                    return;
+                }
+
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{_stringResult}->{value}");
+                }
+                _stringResult = value;
+
+                StringResultChanged.Invoke(_stringResult);
+            }
+        }
+        private string _stringResult;
 
         private List<int> _values;
         private List<Operand> _operands;
 
         public override void Initialize()
         {
+            _result = 0;
+            _stringResult = string.Empty;
             _values = new List<int>();
             _operands = new List<Operand>();
 
             this.InvokeActionAfterAllConditionsAreMet(() =>
                 {
                     GameStateManager.Instance.GameState = GameState.CanInputFirstNumber;
+
+                    Instance.IsInitialized = true;
                 },
                 () => GameStateManager.Instance != null &&
                       GameStateManager.Instance.IsInitialized);
@@ -71,6 +97,12 @@ namespace Managers
         {
             if (!InputManager.Instance.InputValue.HasValue)
             {
+                Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
+                               $"\nreason - {nameof(InputManager)}." +
+                               $"{nameof(InputManager.Instance)}." +
+                               $"{nameof(InputManager.Instance.InputValue)}." +
+                               $"{nameof(InputManager.Instance.InputValue.HasValue)}=={InputManager.Instance.InputValue.HasValue}");
+
                 return;
             }
 
@@ -91,6 +123,9 @@ namespace Managers
             {
                 GameStateManager.Instance.GameState = GameState.CanGetResult;
             }
+
+            var stringResult = GetStringResult();
+            StringResult = stringResult;
         }
         public void Calculate()
         {
@@ -135,6 +170,8 @@ namespace Managers
                 }
             }
             Result = result;
+            var stringResult = GetStringResult();
+            StringResult = stringResult + "=" + Result;
 
             GameStateManager.Instance.GameState = GameState.CanCancel;
         }
@@ -151,6 +188,45 @@ namespace Managers
             }
 
             GameStateManager.Instance.GameState = GameState.CanInputFirstNumber;
+        }
+
+        private string GetStringResult()
+        {
+            var stringResult = _values[0].ToString();
+            for (var i = 0; i < _values.Count - 1; i++)
+            {
+                var operand = _operands[i];
+                stringResult += GetString(operand);
+                var value = _values[i + 1];
+                stringResult += value;
+            }
+
+            return stringResult;
+        }
+        private string GetString(Operand operand)
+        {
+            var result = string.Empty;
+            switch (operand)
+            {
+                case Operand.None:
+                    result = "";
+                    break;
+                case Operand.Plus:
+                    result = "+";
+                    break;
+                case Operand.Minus:
+                    result = "-";
+                    break;
+                case Operand.Multiply:
+                    result = "*";
+                    break;
+                case Operand.Divide:
+                    result = "/";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(operand), operand, null);
+            }
+            return result;
         }
 
         private void InputManagerOnOperandInputted(Operand operand)
