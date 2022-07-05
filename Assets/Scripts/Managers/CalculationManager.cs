@@ -65,7 +65,7 @@ namespace Managers
 
             this.InvokeActionAfterAllConditionsAreMet(() =>
                 {
-                    GameStateManager.Instance.GameState = GameState.CanInputFirstNumber;
+                    GameStateManager.Instance.GameState = GameState.CanInputNumber;
 
                     Instance.IsInitialized = true;
                 },
@@ -80,7 +80,15 @@ namespace Managers
         {
             this.InvokeActionAfterAllConditionsAreMet(() =>
                 {
-                    InputManager.Instance.OperandInputted += InputManagerOnOperandInputted;
+                    InputManager.Instance.InputValueChanged += InputManagerOnInputValueChanged;
+                    InputManagerOnInputValueChanged(InputManager.Instance.InputValue);
+                },
+                () => InputManager.Instance != null &&
+                      InputManager.Instance.IsInitialized);
+            this.InvokeActionAfterAllConditionsAreMet(() =>
+                {
+                    InputManager.Instance.InputOperandChanged += InputManagerOnInputOperandChanged;
+                    InputManagerOnInputOperandChanged(InputManager.Instance.InputOperand);
                 },
                 () => InputManager.Instance != null &&
                       InputManager.Instance.IsInitialized);
@@ -89,39 +97,51 @@ namespace Managers
         {
             if (InputManager.Instance != null)
             {
-                InputManager.Instance.OperandInputted -= InputManagerOnOperandInputted;
+                InputManager.Instance.InputValueChanged -= InputManagerOnInputValueChanged;
+            }
+            if (InputManager.Instance != null)
+            {
+                InputManager.Instance.InputOperandChanged -= InputManagerOnInputOperandChanged;
             }
         }
 
         public void ConfirmInput()
         {
-            if (!InputManager.Instance.InputValue.HasValue)
+            if (InputManager.Instance.InputValue.HasValue)
             {
-                Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
-                               $"\nreason - {nameof(InputManager)}." +
-                               $"{nameof(InputManager.Instance)}." +
-                               $"{nameof(InputManager.Instance.InputValue)}." +
-                               $"{nameof(InputManager.Instance.InputValue.HasValue)}=={InputManager.Instance.InputValue.HasValue}");
+                _values.Add(InputManager.Instance.InputValue.Value);
+                InputManager.Instance.InputValue = null;
 
-                return;
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{nameof(_values)}=={_values.ToString<int>()}");
+                }
+
+                if (_values.Count == 1)
+                {
+                    GameStateManager.Instance.GameState = GameState.CanInputOperand;
+                }
+                if (_values.Count == 2)
+                {
+                    GameStateManager.Instance.GameState = GameState.CanGetResult;
+                }
             }
-
-            _values.Add(InputManager.Instance.InputValue.Value);
-            InputManager.Instance.InputValue = null;
-
-            if (Debug.isDebugBuild)
+            if (InputManager.Instance.InputOperand != Operand.None)
             {
-                Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
-                          $"\n{nameof(_values)}=={_values.ToString<int>()}");
-            }
+                _operands.Add(InputManager.Instance.InputOperand);
+                InputManager.Instance.InputOperand = Operand.None;
 
-            if (_values.Count == 1)
-            {
-                GameStateManager.Instance.GameState = GameState.CanInputOperand;
-            }
-            if (_values.Count == 2)
-            {
-                GameStateManager.Instance.GameState = GameState.CanGetResult;
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{nameof(_operands)}=={_operands.ToString<Operand>()}");
+                }
+
+                if (_operands.Count == 1)
+                {
+                    GameStateManager.Instance.GameState = GameState.CanInputNumber;
+                }
             }
 
             var stringResult = GetStringResult();
@@ -131,15 +151,21 @@ namespace Managers
         {
             if (_values.Count < 2)
             {
-                Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
-                          $"\nreason - {nameof(_values)}.{nameof(_values.Count)}=={_values.Count}");
+                if (Debug.isDebugBuild)
+                {
+                    Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
+                                $"\nreason - {nameof(_values)}.{nameof(_values.Count)}=={_values.Count}");
+                }
 
                 return;
             }
             if (_operands.Count < 1)
             {
-                Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
-                               $"\nreason - {nameof(_operands)}.{nameof(_operands.Count)}=={_operands.Count}");
+                if (Debug.isDebugBuild)
+                {
+                    Debug.LogError($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
+                                $"\nreason - {nameof(_operands)}.{nameof(_operands.Count)}=={_operands.Count}");
+                }
 
                 return;
             }
@@ -173,7 +199,7 @@ namespace Managers
             var stringResult = GetStringResult();
             StringResult = stringResult + "=" + Result;
 
-            GameStateManager.Instance.GameState = GameState.CanCancel;
+            GameStateManager.Instance.GameState = GameState.CanClear;
         }
         public void Clear()
         {
@@ -187,7 +213,7 @@ namespace Managers
                           $"\n{nameof(_operands)}=={_operands.ToString<Operand>()}");
             }
 
-            GameStateManager.Instance.GameState = GameState.CanInputFirstNumber;
+            GameStateManager.Instance.GameState = GameState.CanInputNumber;
         }
 
         private string GetStringResult()
@@ -229,20 +255,36 @@ namespace Managers
             return result;
         }
 
-        private void InputManagerOnOperandInputted(Operand operand)
+        private void InputManagerOnInputValueChanged(int? value)
         {
-            _operands.Add(operand);
-
-            if (Debug.isDebugBuild)
+            if (!value.HasValue)
             {
-                Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
-                          $"\n{nameof(_operands)}=={_operands.ToString<Operand>()}");
+                if (Debug.isDebugBuild)
+                {
+                    Debug.LogWarning($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
+                                  $"\nreason - {nameof(value)}." +
+                                  $"{nameof(value.HasValue)}=={value.HasValue}");
+                }
+
+                return;
             }
 
-            if (_operands.Count == 1)
+            GameStateManager.Instance.GameState = GameState.CanConfirmNumber;
+        }
+        private void InputManagerOnInputOperandChanged(Operand operand)
+        {
+            if (operand == Operand.None)
             {
-                GameStateManager.Instance.GameState = GameState.CanInputFirstNumber;
+                if (Debug.isDebugBuild)
+                {
+                    Debug.LogWarning($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()} aborted" +
+                                  $"\n{nameof(operand)}=={operand}");
+                }
+
+                return;
             }
+
+            GameStateManager.Instance.GameState = GameState.CanConfirmOperand;
         }
     }
 }

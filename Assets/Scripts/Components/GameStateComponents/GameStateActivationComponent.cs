@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Components.BaseComponents;
 using Extensions;
 using Managers;
@@ -8,7 +9,7 @@ namespace Components.GameStateComponents
     public class GameStateActivationComponent : BaseButtonComponent
     {
         [SerializeField]
-        private GameState _targetGameState;
+        private List<GameState> _targetGameStates = new List<GameState>();
         [SerializeField]
         private bool _isReverted;
 
@@ -46,7 +47,7 @@ namespace Components.GameStateComponents
 
         private void GameStateManagerOnGameStateChanged(GameState gameState)
         {
-            var isActive = _targetGameState == gameState;
+            var isActive = _targetGameStates.Contains(gameState);
             if (_isReverted)
             {
                 isActive = !isActive;

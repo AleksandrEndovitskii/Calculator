@@ -6,7 +6,28 @@ namespace Managers
 {
     public class InputManager : BaseManager<InputManager>
     {
-        public event Action<Operand> OperandInputted = delegate { };
+        public event Action<Operand> InputOperandChanged = delegate { };
+        public Operand InputOperand
+        {
+            get => _operand;
+            set
+            {
+                if (_operand == value)
+                {
+                    return;
+                }
+
+                if (Debug.isDebugBuild)
+                {
+                    Debug.Log($"{this.GetType().Name}.{ReflectionHelper.GetCallerMemberName()}" +
+                              $"\n{_operand}->{value}");
+                }
+                _operand = value;
+
+                InputOperandChanged.Invoke(_operand);
+            }
+        }
+        private Operand _operand;
 
         public event Action<int?> InputValueChanged = delegate { };
         public int? InputValue
@@ -33,6 +54,9 @@ namespace Managers
 
         public override void Initialize()
         {
+            InputOperand = Operand.None;
+            InputValue = null;
+
             IsInitialized = true;
         }
         public override void UnInitialize()
@@ -59,7 +83,7 @@ namespace Managers
         }
         public void HandleInput(Operand operand)
         {
-            OperandInputted.Invoke(operand);
+            InputOperand = operand;
         }
     }
 }

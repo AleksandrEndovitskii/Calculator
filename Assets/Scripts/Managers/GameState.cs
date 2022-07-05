@@ -3,10 +3,11 @@ namespace Managers
     public enum GameState
     {
         None,
-        CanInputFirstNumber,
+        CanInputNumber,
+        CanConfirmNumber,
         CanInputOperand,
-        CanInputSecondNumber,
+        CanConfirmOperand,
         CanGetResult,
-        CanCancel,
+        CanClear,
     }
 }
