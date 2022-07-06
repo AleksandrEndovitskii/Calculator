@@ -91,12 +91,34 @@ namespace Managers
                 },
                 () => InputManager.Instance != null &&
                       InputManager.Instance.IsInitialized);
+            this.InvokeActionAfterAllConditionsAreMet(() =>
+                {
+                    InputManager.Instance.InputOperandChanged += InputManagerOnInputOperandChanged;
+                    InputManagerOnInputOperandChanged(InputManager.Instance.InputOperand);
+                },
+                () => InputManager.Instance != null &&
+                      InputManager.Instance.IsInitialized);
+            this.InvokeActionAfterAllConditionsAreMet(() =>
+                {
+                    CalculationManager.Instance.StringResultChanged += CalculationManagerOnStringResultChanged;
+                    CalculationManagerOnStringResultChanged(CalculationManager.Instance.StringResult);
+                },
+                () => CalculationManager.Instance != null &&
+                      CalculationManager.Instance.IsInitialized);
         }
         public override void UnSubscribe()
         {
             if (InputManager.Instance != null)
             {
                 InputManager.Instance.InputValueChanged -= InputManagerOnInputValueChanged;
+            }
+            if (InputManager.Instance != null)
+            {
+                InputManager.Instance.InputOperandChanged -= InputManagerOnInputOperandChanged;
+            }
+            if (CalculationManager.Instance != null)
+            {
+                CalculationManager.Instance.StringResultChanged -= CalculationManagerOnStringResultChanged;
             }
         }
 
@@ -127,9 +149,17 @@ namespace Managers
             InputFieldValue = value;
             IsInputFieldEmpty = string.IsNullOrEmpty(InputFieldValue);
         }
-        private void InputManagerOnInputValueChanged(int? value)
+        private void InputManagerOnInputValueChanged(int? inputValue)
         {
-            InputFieldValue = value.ToString();
+            InputFieldValue = inputValue.ToString();
+        }
+        private void InputManagerOnInputOperandChanged(Operand operand)
+        {
+            InputFieldValue = OperandHelper.ToString(operand);
+        }
+        private void CalculationManagerOnStringResultChanged(string stringResult)
+        {
+            InputFieldValue = stringResult;
         }
     }
 }

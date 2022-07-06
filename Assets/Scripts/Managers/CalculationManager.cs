@@ -213,46 +213,30 @@ namespace Managers
                           $"\n{nameof(_operands)}=={_operands.ToString<Operand>()}");
             }
 
+            Result = 0;
+            StringResult = string.Empty;
+
             GameStateManager.Instance.GameState = GameState.CanInputNumber;
         }
 
         private string GetStringResult()
         {
-            var stringResult = _values[0].ToString();
-            for (var i = 0; i < _values.Count - 1; i++)
+            var stringResult = string.Empty;
+            var operandsIndex = 0;
+            for (var valuesIndex = 0; valuesIndex < _values.Count; valuesIndex++)
             {
-                var operand = _operands[i];
-                stringResult += GetString(operand);
-                var value = _values[i + 1];
+                var value = _values[valuesIndex];
                 stringResult += value;
+
+                if (operandsIndex < _operands.Count)
+                {
+                    var operand = _operands[operandsIndex];
+                    operandsIndex++;
+                    stringResult += OperandHelper.ToString(operand);
+                }
             }
 
             return stringResult;
-        }
-        private string GetString(Operand operand)
-        {
-            var result = string.Empty;
-            switch (operand)
-            {
-                case Operand.None:
-                    result = "";
-                    break;
-                case Operand.Plus:
-                    result = "+";
-                    break;
-                case Operand.Minus:
-                    result = "-";
-                    break;
-                case Operand.Multiply:
-                    result = "*";
-                    break;
-                case Operand.Divide:
-                    result = "/";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(operand), operand, null);
-            }
-            return result;
         }
 
         private void InputManagerOnInputValueChanged(int? value)
