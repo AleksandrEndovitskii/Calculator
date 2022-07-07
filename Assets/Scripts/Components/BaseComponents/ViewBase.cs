@@ -1,10 +1,11 @@
 ﻿using System;
+using Common;
 using Helpers;
 using UnityEngine;
 
-namespace Common
+namespace Components.BaseComponents
 {
-    public class ViewBase<T> : MonoBehaviour, IView<T> where T : IModel
+    public class ViewBase<T> : BaseComponent, IView<T> where T : IModel
     {
         public Action<T> ModelChanged = delegate { };
         public T Model
@@ -31,5 +32,19 @@ namespace Common
             }
         }
         private T _model;
+
+        public override void Initialize()
+        {
+        }
+        public override void UnInitialize()
+        {
+        }
+
+        public override void Subscribe()
+        {
+        }
+        public override void UnSubscribe()
+        {
+        }
     }
 }
