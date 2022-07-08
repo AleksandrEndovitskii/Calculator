@@ -1,17 +1,28 @@
 using Components.BaseComponents;
 using Managers;
 using UnityEngine;
+using Views;
 
 namespace Components.InputComponents
 {
     public class InputOperandButtonComponent : BaseButtonComponent
     {
         [SerializeField]
-        private Operand _operand;
+        private InputOperandView _view;
 
         protected override void ButtonOnClick()
         {
-            InputManager.Instance.HandleInput(_operand);
+            if (_view == null)
+            {
+                return;
+            }
+
+            if (_view.Model == null)
+            {
+                return;
+            }
+
+            InputManager.Instance.HandleInput(_view.Model.Data);
         }
     }
 }
