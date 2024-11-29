@@ -8,6 +8,7 @@ namespace Managers
 {
     public class CalculationManager : BaseManager<CalculationManager>
     {
+         // uniRX
         public event Action<int> ResultChanged = delegate { };
         public int Result
         {
